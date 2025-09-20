@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const session = require("express-session");
+const CookieParser = require('cookie-parser');
 const MongoStore = require("connect-mongo");
 const authRoutes = require("./routes/auth");
 
@@ -12,16 +13,18 @@ app.use(express.json());
 // MongoDB connection
 mongoose.connect("mongodb://127.0.0.1:27017/sessionAuth");
 
-// Session setup
+// Session setup (with cookies)
 app.use(
   session({
-    secret: "mysecretkey",
+    secret: 'mysecretkey',
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: "mongodb://127.0.0.1:27017/sessionAuth",
-    }),
-    cookie: { maxAge: 1000 * 60 * 60 }, // 1 hour
+    store: MongoStore.create({ mongoUrl: 'mongodb://127.0.0.1:27017/sessionAuth' }),
+    cookie: {
+      httpOnly: true,     // prevents client-side JS from reading cookie
+      secure: false,      // set 'true' if using HTTPS
+      maxAge: 1000 * 60 * 60, // 1 hour
+    },
   })
 );
 
